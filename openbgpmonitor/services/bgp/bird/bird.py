@@ -7,7 +7,6 @@ from openbgpmonitor.core.models.bgp_models import (
 )
 from pybird import PyBird
 from openbgpmonitor.config.config import CONFIG
-from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
 
 # Initialiser l'environnement avec un dossier de templates
@@ -38,21 +37,15 @@ class BGPPybird(BGPInterface):
         return self.bird_socket.get_peer_prefixes_accepted(peer_name=neighbor.name)
 
     def apply_config(self, config: Config) -> bool:
-        current_time = datetime.now()
         template = env.get_template("config.j2")
         rendered_config = template.render(
             neighbors=self.neighbors, local_as=config.local_as
-        )
-        last_reconfiguration_time: datetime = self.bird_socket.get_bird_status().get(
-            "last_reconfiguration"
         )
         self.bird_socket.config_file = "/etc/bird/bird.conf"
         self.bird_socket.put_config(rendered_config)
         try:
             self.bird_socket.check_config()
             self.bird_socket.commit_config()
+            return True
         except ValueError as err:
             print(f"error in generated config: {err}")
-        if last_reconfiguration_time > current_time:
-            return True
-        raise ValueError("Generated configuration is not correctly applied")
