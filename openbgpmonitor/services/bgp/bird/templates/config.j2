@@ -1,0 +1,37 @@
+# Configure logging
+log syslog all;
+# log "/var/log/bird.log" { debug, trace, info, remote, warning, error, auth, fatal, bug };
+
+# Set router ID. It is a unique identification of your router, usually one of
+# IPv4 addresses of the router. It is recommended to configure it explicitly.
+# router id 198.51.100.1;
+
+# The Device protocol is not a real routing protocol. It does not generate any
+# routes and it only serves as a module for getting information about network
+# interfaces from the kernel. It is necessary in almost any configuration.
+protocol device {
+}
+
+# The direct protocol is not a real routing protocol. It automatically generates
+# direct routes to all network interfaces. Can exist in as many instances as you
+# wish if you want to populate multiple routing tables with direct routes.
+protocol direct {
+	disabled;		# Disable by default
+	ipv4;			# Connect to default IPv4 table
+	ipv6;			# ... and to default IPv6 table
+}
+
+{% for bgp_neighbor in neighbors %}
+protocol bgp {{ bgp_neighbor.name }} {
+  local as {{ local_as }};
+  neighbor {{ bgp_neighbor.remote_ip }} as {{ bgp_neighbor.remote_as}};
+  {% if bgp_neighbor.password is not none %}
+  password {{ bgp_neighbor.password }};
+  {% endif %}
+  multihop 5;
+  ipv4 {
+    export none;
+    import all;
+  };
+}
+{% endfor %}
