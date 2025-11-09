@@ -30,7 +30,7 @@ class BGPPybird(BGPInterface):
         bgp_peer_state = self.bird_socket.get_peer_status(peer_name=neighbor.name)
         return BGPNeighborState(
             state=BGPPeeringStateEnum(bgp_peer_state.get("state").lower()),
-            received_prefix_number=bgp_peer_state.get("received_prefix_number"),
+            received_prefix_number=int(bgp_peer_state.get("import_updates_received")),
         )
 
     def get_bgp_prefixes_received_from_neighbor(self, neighbor):
