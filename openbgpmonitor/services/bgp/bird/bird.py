@@ -11,7 +11,10 @@ from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
 
 # Initialiser l'environnement avec un dossier de templates
-env = Environment(loader=FileSystemLoader("templates"), autoescape=True)
+env = Environment(
+    loader=FileSystemLoader("./openbgpmonitor/services/bgp/bird/templates"),
+    autoescape=True,
+)
 
 
 class BGPPybird(BGPInterface):
