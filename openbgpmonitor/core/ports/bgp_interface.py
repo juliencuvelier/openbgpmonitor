@@ -11,5 +11,5 @@ class BGPInterface(ABC):
     def get_bgp_prefixes_received_from_neighbor(self, neighbor: BGPNeighbor):
         raise NotImplementedError
 
-    def apply_config(self, config: Config) -> bool:
+    def apply_config(self, config: Config) -> bool | None:
         raise NotImplementedError

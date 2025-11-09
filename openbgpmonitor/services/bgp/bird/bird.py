@@ -36,7 +36,7 @@ class BGPPybird(BGPInterface):
     def get_bgp_prefixes_received_from_neighbor(self, neighbor):
         return self.bird_socket.get_peer_prefixes_accepted(peer_name=neighbor.name)
 
-    def apply_config(self, config: Config) -> bool:
+    def apply_config(self, config: Config) -> bool | None:
         template = env.get_template("config.j2")
         rendered_config = template.render(
             neighbors=self.neighbors, local_as=config.local_as
