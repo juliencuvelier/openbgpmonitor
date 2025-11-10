@@ -23,7 +23,7 @@ class TSDBInfluxDB(TSDBInterface):
                 Point(event.measurement)
                 .tag("host", event.neighbor_name)
                 .tag("event_type", event.event_type)
-                .field("detail", event.details)
+                .field("detail", str(event.details))
                 .time(event.timestamp, WritePrecision.NS)
             )
             write_api.write(
@@ -42,7 +42,7 @@ class TSDBInfluxDB(TSDBInterface):
                     Point(event.measurement)
                     .tag("host", event.neighbor_name)
                     .tag("event_type", event.event_type)
-                    .field("detail", event.details)
+                    .field("detail", str(event.details))
                     .time(event.timestamp, WritePrecision.NS)
                 )
             write_api = client.write_api(write_options=SYNCHRONOUS)

@@ -10,7 +10,7 @@ class EventType(Enum):
 
 class Event(BaseModel):
     timestamp: datetime
-    details: list[str]
+    details: list
     event_type: EventType
     neighbor_name: str
     measurement: str = "bgp_events"
