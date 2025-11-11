@@ -1,3 +1,5 @@
+import datetime
+
 from openbgpmonitor.core.ports.tsdb_interface import TSDBInterface
 from openbgpmonitor.core.models.event_models import Event
 from openbgpmonitor.config.config import CONFIG, Config
@@ -36,6 +38,15 @@ class TSDBInfluxDB(TSDBInterface):
             token=self.config.influxdb_token,
             org=self.config.influxdb_org,
         ) as client:
+            client.delete_api().delete(
+                start=datetime.datetime(
+                    year=2024, month=11, hour=12, minute=10, second=30, microsecond=0
+                ),
+                stop=datetime.datetime.now(),
+                predicate='_measurement="bgp_events"',
+                bucket=self.config.influxdb_bucket,
+                org=self.config.influxdb_org,
+            )
             formatted_events = []
             for event in event_list:
                 formatted_events.append(
