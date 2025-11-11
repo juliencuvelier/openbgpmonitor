@@ -1,6 +1,9 @@
 from openbgpmonitor.core.core_controller import CoreController
 from openbgpmonitor.services.bgp.bird.bird import BGPPybird
 from openbgpmonitor.services.tsdb.influxdb.influxdb import TSDBInfluxDB
+from openbgpmonitor.services.logger import get_logger
+
+LOG = get_logger(__name__)
 
 
 def main():
@@ -11,4 +14,5 @@ def main():
 
 
 if __name__ == "__main__":
+    LOG.info("starting application")
     main()

@@ -5,6 +5,9 @@ from openbgpmonitor.core.ports.tsdb_interface import TSDBInterface
 from time import sleep
 from datetime import datetime
 from datetime import UTC
+from openbgpmonitor.services.logger import get_logger
+
+LOG = get_logger(__name__)
 
 
 def analyse_change(
@@ -58,19 +61,26 @@ class CoreController:
     def run(self):
         while True:
             for bgp_neighbor in self.config.peer_list:
+                LOG.debug(f"Fetching prefix from {bgp_neighbor}")
                 existing_prefixes = self.prefix_per_neighbor.get(bgp_neighbor.name)
                 prefixes = self.bgp_service.get_bgp_prefixes_received_from_neighbor(
                     bgp_neighbor
                 )
+                LOG.debug(
+                    f"existing prefixes of neighbor {bgp_neighbor} = {existing_prefixes}"
+                )
+                LOG.debug(f"fetched prefixes of neighbor {bgp_neighbor} = {prefixes}")
                 if existing_prefixes is not None:
                     events = analyse_change(
                         new_prefixes=prefixes,
                         existing_prefixes=existing_prefixes,
                         neighbor_name=bgp_neighbor.name,
                     )
+                    LOG.debug(
+                        f"Events generated for neighbor {bgp_neighbor} : {events}"
+                    )
                     self.tsdb_service.send_event_list(event_list=events)
                 else:
-                    self.bgp_service.get_bgp_neighbor_state(bgp_neighbor)
                     self.prefix_per_neighbor[bgp_neighbor.name] = prefixes
                     self.prefix_per_neighbor[bgp_neighbor.name] = list(
                         set(self.prefix_per_neighbor)
