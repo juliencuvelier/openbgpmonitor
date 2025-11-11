@@ -69,6 +69,7 @@ class CoreController:
         while True:
             for bgp_neighbor in self.config.peer_list:
                 LOG.debug(f"Fetching prefix from {bgp_neighbor.name}")
+                LOG.debug(f"Existing prefixes dict = {self.prefix_per_neighbor}")
                 existing_prefixes = self.prefix_per_neighbor.get(bgp_neighbor.name)
                 prefixes = self.bgp_service.get_bgp_prefixes_received_from_neighbor(
                     bgp_neighbor
@@ -90,8 +91,8 @@ class CoreController:
                     )
                     self.tsdb_service.send_event_list(event_list=events)
                 else:
-                    self.prefix_per_neighbor[bgp_neighbor.name] = prefixes
-                    self.prefix_per_neighbor[bgp_neighbor.name] = list(
-                        set(self.prefix_per_neighbor)
+                    LOG.debug(
+                        f"updating existing prefixes list for key {bgp_neighbor.name} with value {prefixes}"
                     )
+                    self.prefix_per_neighbor[bgp_neighbor.name] = prefixes
             sleep(1)

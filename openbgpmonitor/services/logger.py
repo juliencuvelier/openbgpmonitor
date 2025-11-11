@@ -3,8 +3,7 @@ from logging.handlers import RotatingFileHandler
 
 handler = RotatingFileHandler(
     "app.log",  # Nom du fichier de log
-    maxBytes=50000,  # Taille maximale du fichier en octets (ici, 5 Mo)
-    backupCount=3,  # Nombre de fichiers de sauvegarde
+    maxBytes=5000000,  # Taille maximale du fichier en octets
 )
 
 # Créer un logger spécifique pour le module principal
