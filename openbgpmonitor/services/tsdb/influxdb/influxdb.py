@@ -40,7 +40,13 @@ class TSDBInfluxDB(TSDBInterface):
         ) as client:
             client.delete_api().delete(
                 start=datetime.datetime(
-                    year=2024, month=11, hour=12, minute=10, second=30, microsecond=0
+                    year=2024,
+                    month=11,
+                    day=3,
+                    hour=12,
+                    minute=10,
+                    second=30,
+                    microsecond=0,
                 ),
                 stop=datetime.datetime.now(),
                 predicate='_measurement="bgp_events"',
