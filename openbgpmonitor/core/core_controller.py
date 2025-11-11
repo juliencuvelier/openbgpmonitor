@@ -19,25 +19,32 @@ def analyse_change(
     for new_prefix in new_prefixes:
         if new_prefix not in existing_prefixes:
             added_prefixes.append(new_prefix)
-            print(new_prefix)
     for existing_prefix in existing_prefixes:
         if existing_prefix not in new_prefixes:
             removed_prefixes.append(existing_prefix)
-            print(removed_prefixes)
-    return [
-        Event(
-            timestamp=now,
-            details=added_prefixes,
-            event_type=EventType.ADDED_PREFIX,
-            neighbor_name=neighbor_name,
-        ),
-        Event(
-            timestamp=now,
-            details=removed_prefixes,
-            event_type=EventType.REMOVED_PREFIX,
-            neighbor_name=neighbor_name,
-        ),
-    ]
+    result = []
+    if len(added_prefixes) > 0:
+        result.append(
+            Event(
+                timestamp=now,
+                details=added_prefixes,
+                event_type=EventType.ADDED_PREFIX,
+                neighbor_name=neighbor_name,
+            )
+        )
+    if len(removed_prefixes) > 0:
+        result.append(
+            Event(
+                timestamp=now,
+                details=removed_prefixes,
+                event_type=EventType.REMOVED_PREFIX,
+                neighbor_name=neighbor_name,
+            )
+        )
+    if len(result) > 0:
+        return result
+    else:
+        return []
 
 
 class CoreController:
@@ -61,15 +68,17 @@ class CoreController:
     def run(self):
         while True:
             for bgp_neighbor in self.config.peer_list:
-                LOG.debug(f"Fetching prefix from {bgp_neighbor}")
+                LOG.debug(f"Fetching prefix from {bgp_neighbor.name}")
                 existing_prefixes = self.prefix_per_neighbor.get(bgp_neighbor.name)
                 prefixes = self.bgp_service.get_bgp_prefixes_received_from_neighbor(
                     bgp_neighbor
                 )
                 LOG.debug(
-                    f"existing prefixes of neighbor {bgp_neighbor} = {existing_prefixes}"
+                    f"existing prefixes of neighbor {bgp_neighbor.name} = {existing_prefixes}"
                 )
-                LOG.debug(f"fetched prefixes of neighbor {bgp_neighbor} = {prefixes}")
+                LOG.debug(
+                    f"fetched prefixes of neighbor {bgp_neighbor.name} = {prefixes}"
+                )
                 if existing_prefixes is not None:
                     events = analyse_change(
                         new_prefixes=prefixes,
@@ -77,7 +86,7 @@ class CoreController:
                         neighbor_name=bgp_neighbor.name,
                     )
                     LOG.debug(
-                        f"Events generated for neighbor {bgp_neighbor} : {events}"
+                        f"Events generated for neighbor {bgp_neighbor.name} : {events}"
                     )
                     self.tsdb_service.send_event_list(event_list=events)
                 else:
