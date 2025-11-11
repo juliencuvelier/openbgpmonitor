@@ -90,6 +90,7 @@ class CoreController:
                         f"Events generated for neighbor {bgp_neighbor.name} : {events}"
                     )
                     self.tsdb_service.send_event_list(event_list=events)
+                    self.prefix_per_neighbor[bgp_neighbor.name] = prefixes
                 else:
                     LOG.debug(
                         f"updating existing prefixes list for key {bgp_neighbor.name} with value {prefixes}"
