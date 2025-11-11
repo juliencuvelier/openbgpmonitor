@@ -16,9 +16,11 @@ def analyse_change(
     for new_prefix in new_prefixes:
         if new_prefix not in existing_prefixes:
             added_prefixes.append(new_prefix)
+            print(new_prefix)
     for existing_prefix in existing_prefixes:
         if existing_prefix not in new_prefixes:
             removed_prefixes.append(existing_prefix)
+            print(removed_prefixes)
     return [
         Event(
             timestamp=now,
