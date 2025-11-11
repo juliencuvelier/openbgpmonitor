@@ -4,7 +4,6 @@ from openbgpmonitor.config.config import CONFIG, Config
 
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
-import datetime
 
 
 class TSDBInfluxDB(TSDBInterface):
@@ -37,21 +36,6 @@ class TSDBInfluxDB(TSDBInterface):
             token=self.config.influxdb_token,
             org=self.config.influxdb_org,
         ) as client:
-            client.delete_api().delete(
-                start=datetime.datetime(
-                    year=2024,
-                    month=11,
-                    day=3,
-                    hour=12,
-                    minute=10,
-                    second=30,
-                    microsecond=0,
-                ),
-                stop=datetime.datetime.now(),
-                predicate='_measurement="bgp_events"',
-                bucket=self.config.influxdb_bucket,
-                org=self.config.influxdb_org,
-            )
             formatted_events = []
             for event in event_list:
                 formatted_events.append(
