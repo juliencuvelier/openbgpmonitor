@@ -4,6 +4,7 @@ from openbgpmonitor.core.models.bgp_models import (
     BGPNeighbor,
     BGPNeighborState,
     BGPPeeringStateEnum,
+    BGPPrefix,
 )
 from pybird import PyBird
 from openbgpmonitor.config.config import CONFIG
@@ -33,8 +34,25 @@ class BGPPybird(BGPInterface):
             received_prefix_number=int(bgp_peer_state.get("import_updates_received")),
         )
 
-    def get_bgp_prefixes_received_from_neighbor(self, neighbor):
-        return self.bird_socket.get_peer_prefixes_accepted(peer_name=neighbor.name)
+    def get_bgp_prefixes_received_from_neighbor(self, neighbor) -> list[BGPPrefix]:
+        prefixes = self.bird_socket.get_peer_prefixes_accepted(peer_name=neighbor.name)
+        result = []
+        for prefix in prefixes:
+            result.append(
+                BGPPrefix(
+                    local_preference=prefix.get("local_pref"),
+                    prefix=prefix.get("prefix"),
+                    origin=prefix.get("origin"),
+                    as_path=prefix.get("as_path"),
+                    next_hop=prefix.get("next_hop"),
+                    route_distinguisher=prefix.get("route_distinguisher"),
+                    med=prefix.get("med"),
+                    weight=prefix.get("weight"),
+                    communities=prefix.get("communities"),
+                    extended_communities=prefix.get("extended_communities"),
+                )
+            )
+        return result
 
     def apply_config(self, config: Config) -> bool | None:
         template = env.get_template("config.j2")

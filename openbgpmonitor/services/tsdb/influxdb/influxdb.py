@@ -7,12 +7,25 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 
 
 class TSDBInfluxDB(TSDBInterface):
+    """InfluxDB implementation of the TSDBInterface for storing BGP events."""
+
     config: Config
 
     def __init__(self, config: Config = CONFIG):
+        """Initializes the TSDBInfluxDB instance.
+
+        Args:
+            config (Config, optional): Configuration object containing InfluxDB connection parameters.
+                Defaults to CONFIG.
+        """
         self.config = config
 
     def send_event(self, event: Event):
+        """Sends a single event to InfluxDB.
+
+        Args:
+            event (Event): The event to be written to InfluxDB.
+        """
         with InfluxDBClient(
             url=self.config.influxdb_url,
             token=self.config.influxdb_token,
@@ -31,6 +44,11 @@ class TSDBInfluxDB(TSDBInterface):
             )
 
     def send_event_list(self, event_list: list[Event]):
+        """Sends a list of events to InfluxDB in batch.
+
+        Args:
+            event_list (list[Event]): List of events to be written to InfluxDB.
+        """
         with InfluxDBClient(
             url=self.config.influxdb_url,
             token=self.config.influxdb_token,

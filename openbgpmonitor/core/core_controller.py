@@ -10,20 +10,16 @@ from openbgpmonitor.services.logger import get_logger
 LOG = get_logger(__name__)
 
 
-def analyse_change(
+def analyze_change(
     new_prefixes: list, existing_prefixes: list, neighbor_name: str
 ) -> list[Event]:
-    added_prefixes = []
-    removed_prefixes = []
     now = datetime.now(UTC)
-    for new_prefix in new_prefixes:
-        if new_prefix not in existing_prefixes:
-            added_prefixes.append(new_prefix)
-    for existing_prefix in existing_prefixes:
-        if existing_prefix not in new_prefixes:
-            removed_prefixes.append(existing_prefix)
+    new_set = set(new_prefixes)
+    existing_set = set(existing_prefixes)
+    added_prefixes = list(new_set - existing_set)
+    removed_prefixes = list(existing_set - new_set)
     result = []
-    if len(added_prefixes) > 0:
+    if added_prefixes:
         result.append(
             Event(
                 timestamp=now,
@@ -32,7 +28,7 @@ def analyse_change(
                 neighbor_name=neighbor_name,
             )
         )
-    if len(removed_prefixes) > 0:
+    if removed_prefixes:
         result.append(
             Event(
                 timestamp=now,
@@ -41,10 +37,7 @@ def analyse_change(
                 neighbor_name=neighbor_name,
             )
         )
-    if len(result) > 0:
-        return result
-    else:
-        return []
+    return result
 
 
 class CoreController:
@@ -81,7 +74,7 @@ class CoreController:
                     f"fetched prefixes of neighbor {bgp_neighbor.name} = {prefixes}"
                 )
                 if existing_prefixes is not None:
-                    events = analyse_change(
+                    events = analyze_change(
                         new_prefixes=prefixes,
                         existing_prefixes=existing_prefixes,
                         neighbor_name=bgp_neighbor.name,
