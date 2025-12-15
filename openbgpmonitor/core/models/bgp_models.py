@@ -65,7 +65,7 @@ class BGPNeighborState(BaseModel):
     received_prefix_number: int
 
 
-@dataclass
+@dataclass(frozen=True)
 class BGPPrefix:
     """
     Class representing a BGP prefix.
